@@ -16,16 +16,30 @@ const rule = require("../../../lib/rules/path-checker"),
 // Tests
 //------------------------------------------------------------------------------
 
-const ruleTester = new RuleTester();
+const ruleTester = new RuleTester({
+  parserOptions: {ecmaVersion: 6, sourceType: 'module'}
+});
 ruleTester.run("path-checker", rule, {
   valid: [
-    // give me some code that won't trigger a warning
+    {
+      filename: 'some/project/src/entities/Article',
+      code: "import { addCommentFormActions, addCommentFormReducer } from '../../model/slice/addCommentFormSlice'",
+    },
   ],
 
   invalid: [
     {
-      code: "test",
-      errors: [{ message: "Fill me in.", type: "Me too" }],
+      filename: 'some/project/src/entities/Article',
+      code: "import { addCommentFormActions, addCommentFormReducer } from 'entities/Article/model/slice/addCommentFormSlice'",
+      errors: [{ message: "В рамках одного слайса все пути должны быть относительными" }],
+    },
+    {
+      filename: 'some/project/src/entities/Article',
+      code: "import { addCommentFormActions, addCommentFormReducer } from '@/entities/Article/model/slice/addCommentFormSlice'",
+      errors: [{ message: "В рамках одного слайса все пути должны быть относительными" }],
+      options: [{
+       alias: '@'
+      }]
     },
   ],
 });
